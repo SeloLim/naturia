@@ -1,103 +1,295 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  ChevronRight,
+} from "lucide-react";
+import BannerCarousel from "@/components/home/banner";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Product } from "@/types/product";
+import { ProductCard } from "@/components/product/ProductCard";
+import { ProductQuickView } from "@/components/product/ProductQuickView";
+
+
+
+// Main homepage component
+const HomePage = () => {  
+  const [categories, setCategories] = useState<{ [key: string]: Product[] }>(
+    {}
+  );
+  const [newArrivals, setNewArrivals] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/products");
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          // Get new arrivals (most recent created_at)
+          const sortedByDate = [...data].sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          );
+          setNewArrivals(sortedByDate.slice(0, 4));
+
+          // Group products by category
+          const productsByCategory: { [key: string]: Product[] } = {};
+          data.forEach((product) => {
+            const categoryName = product.categories.name;
+            if (!productsByCategory[categoryName]) {
+              productsByCategory[categoryName] = [];
+            }
+            productsByCategory[categoryName].push(product);
+          });
+          setCategories(productsByCategory);
+
+          // Set active category to first category
+          if (Object.keys(productsByCategory).length > 0) {
+            setActiveCategory(Object.keys(productsByCategory)[0]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleQuickView = (product: Product) => {
+    setSelectedProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const closeQuickView = () => {
+    setIsQuickViewOpen(false);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="flex flex-col min-h-screen pt-24">
+      <main className="flex-grow">
+        <div className="py-12">
+          <BannerCarousel />
         </div>
+
+        {/* Features */}
+        <section className="py-10 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white p-6 rounded-lg text-center shadow-sm">
+                <div className="rounded-full bg-emerald-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-emerald-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">
+                  100% Natural Ingredients
+                </h3>
+                <p className="text-gray-600">
+                  All our products are made with carefully selected natural
+                  ingredients
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg text-center shadow-sm">
+                <div className="rounded-full bg-emerald-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-emerald-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Cruelty Free</h3>
+                <p className="text-gray-600">
+                  We never test on animals and support ethical beauty practices
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg text-center shadow-sm">
+                <div className="rounded-full bg-emerald-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-emerald-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold mb-2">
+                  Dermatologist Approved
+                </h3>
+                <p className="text-gray-600">
+                  All products are tested and approved by certified
+                  dermatologists
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* New Arrivals */}
+        <section className="py-12">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold">New Arrivals</h2>
+              <Button
+                variant="ghost"
+                className="text-emerald-600 hover:text-emerald-700"
+              >
+                View All <ChevronRight size={16} className="ml-1" />
+              </Button>
+            </div>
+
+            {isLoading ? (
+              <div className="text-center py-10">Loading new arrivals...</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {newArrivals.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onQuickView={handleQuickView}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Category Products with Tabs */}
+        <section className="py-12">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold">Shop by Category</h2>
+              <Button
+                variant="ghost"
+                className="text-emerald-600 hover:text-emerald-700"
+              >
+                View All Categories <ChevronRight size={16} className="ml-1" />
+              </Button>
+            </div>
+
+            {isLoading ? (
+              <div className="text-center py-10">Loading categories...</div>
+            ) : (
+              <Tabs
+                defaultValue={activeCategory}
+                value={activeCategory}
+                onValueChange={setActiveCategory}
+              >
+                <TabsList className="mb-6 flex flex-wrap justify-start w-full bg-transparent">
+                  {Object.keys(categories).map((category) => (
+                    <TabsTrigger
+                      key={category}
+                      value={category}
+                      className="
+                        px-4 py-2 mx-1
+                        bg-transparent           
+                        hover:bg-transparent
+                        hover:border-0
+                        hover:border-b-1
+                        hover:border-black
+                        shadow-none              
+                        data-[state=active]:bg-transparent 
+                        data-[state=active]:shadow-none
+                        data-[state=active]:border-0  
+                        data-[state=active]:border-b-2
+                        rounded-none
+                        data-[state=active]:border-black
+                        data-[state=active]:font-semibold  
+                        focus-visible:ring-0
+                        focus-visible:ring-offset-0
+                        h-14
+                      "
+                    >
+                      {category}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+
+                {Object.entries(categories).map(
+                  ([category, categoryProducts]) => (
+                    <TabsContent key={category} value={category}>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {categoryProducts.slice(0, 4).map((product) => (
+                          <ProductCard
+                            key={product.id}
+                            product={product}
+                            onQuickView={handleQuickView}
+                          />
+                        ))}
+                      </div>
+
+                      {categoryProducts.length > 4 && (
+                        <div className="text-center mt-8">
+                          <Button
+                            variant="outline"
+                            className="border-emerald-600 text-emerald-600 hover:bg-emerald-50"
+                          >
+                            View More {category} Products
+                          </Button>
+                        </div>
+                      )}
+                    </TabsContent>
+                  )
+                )}
+              </Tabs>
+            )}
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      {/* Product Quick View Sheet */}
+      <ProductQuickView
+        product={selectedProduct}
+        isOpen={isQuickViewOpen}
+        onClose={closeQuickView}
+      />
     </div>
   );
-}
+};
+
+export default HomePage;
