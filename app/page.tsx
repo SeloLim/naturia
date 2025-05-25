@@ -2,20 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  ChevronRight,
-} from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import BannerCarousel from "@/components/home/banner";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Product } from "@/types/product";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductQuickView } from "@/components/product/ProductQuickView";
-
-
+import { useProduct } from "@/hooks/useProduct";
 
 // Main homepage component
-const HomePage = () => {  
+const HomePage = () => {
+  const { products, isLoading: isProductsLoading } = useProduct();
   const [categories, setCategories] = useState<{ [key: string]: Product[] }>(
     {}
   );
@@ -23,48 +21,45 @@ const HomePage = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/products");
-        const data = await response.json();
+    // Proses data hanya jika products sudah ada, bukan null/undefined, dan merupakan array
+    if (products && Array.isArray(products) && products.length > 0) {
+      // Get new arrivals (most recent created_at)
+      const sortedByDate = [...products].sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      setNewArrivals(sortedByDate.slice(0, 4));
 
-        if (Array.isArray(data)) {
-          // Get new arrivals (most recent created_at)
-          const sortedByDate = [...data].sort(
-            (a, b) =>
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime()
-          );
-          setNewArrivals(sortedByDate.slice(0, 4));
-
-          // Group products by category
-          const productsByCategory: { [key: string]: Product[] } = {};
-          data.forEach((product) => {
-            const categoryName = product.categories.name;
-            if (!productsByCategory[categoryName]) {
-              productsByCategory[categoryName] = [];
-            }
-            productsByCategory[categoryName].push(product);
-          });
-          setCategories(productsByCategory);
-
-          // Set active category to first category
-          if (Object.keys(productsByCategory).length > 0) {
-            setActiveCategory(Object.keys(productsByCategory)[0]);
+      // Group products by category
+      const productsByCategory: { [key: string]: Product[] } = {};
+      products.forEach((product) => {
+        // Pastikan product.categories dan product.categories.name ada
+        const categoryName = product.categories?.name;
+        if (categoryName) {
+          if (!productsByCategory[categoryName]) {
+            productsByCategory[categoryName] = [];
           }
+          productsByCategory[categoryName].push(product);
         }
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      });
+      setCategories(productsByCategory);
 
-    fetchProducts();
-  }, []);
+      // Set active category to first category
+      const categoryKeys = Object.keys(productsByCategory);
+      if (categoryKeys.length > 0) {
+        setActiveCategory(categoryKeys[0]);
+      } else {
+        setActiveCategory(""); // Tidak ada kategori, set ke string kosong
+      }
+    } else if (!isProductsLoading) {
+      // Jika selesai loading dan tidak ada produk, reset state
+      setNewArrivals([]);
+      setCategories({});
+      setActiveCategory("");
+    }
+  }, [products, isProductsLoading]);
 
   const handleQuickView = (product: Product) => {
     setSelectedProduct(product);
@@ -183,7 +178,7 @@ const HomePage = () => {
               </Button>
             </div>
 
-            {isLoading ? (
+            {isProductsLoading ? (
               <div className="text-center py-10">Loading new arrivals...</div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -212,7 +207,7 @@ const HomePage = () => {
               </Button>
             </div>
 
-            {isLoading ? (
+            {isProductsLoading ? (
               <div className="text-center py-10">Loading categories...</div>
             ) : (
               <Tabs
