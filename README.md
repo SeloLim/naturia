@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Naturia - E-commerce Skincare Pelanggan
 
-## Getting Started
+Aplikasi e-commerce yang menghadap pelanggan untuk brand skincare fiktif "Naturia." Platform ini terintegrasi dengan API dari sistem Admin Naturia untuk menyediakan pengalaman belanja yang lengkap.
 
-First, run the development server:
+**Demo Langsung:** [https://naturia-selo-lim.vercel.app/](https://naturia-selo-lim.vercel.app/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Fitur Utama
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* **Penjelajahan Produk:**
+    * Lihat semua produk
+    * Filter berdasarkan kategori
+    * Pencarian produk
+* **Halaman Detail Produk:** Informasi lengkap, gambar, harga.
+* **Keranjang Belanja:** Tambah, lihat, ubah jumlah, hapus produk dari keranjang.
+* **Proses Checkout:** Input alamat pengiriman, ringkasan pesanan.
+* **Simulasi Pembayaran:** Mockup proses pembayaran.
+* **Manajemen Akun Pengguna:** (Profil, riwayat pesanan, alamat pengguna)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tampilan Aplikasi (Contoh Screenshot)
+![image](https://github.com/user-attachments/assets/d1209d41-b791-4f4c-ae4a-6605beb68bdc)
+![image](https://github.com/user-attachments/assets/89299ef6-7bf6-4b84-b193-d4ba99107243)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## Teknologi yang Digunakan
 
-To learn more about Next.js, take a look at the following resources:
+* **Frontend & Backend:** Next.js (v15.3.1)
+* **Bahasa:** TypeScript (v5.8.3)
+* **Styling:** Tailwind CSS (v4.1.4)
+* **UI Components:** Shadcn/ui
+* **Database & Backend Services:** Supabase (PostgreSQL)
+* **Validasi Skema:** Zod
+* **Runtime:** Bun (v1.2.9)
+* **Linting:** ESLint
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Memulai Proyek (Getting Started)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Untuk menjalankan proyek ini secara lokal, ikuti langkah-langkah berikut:
 
-## Deploy on Vercel
+1.  **Pastikan Aplikasi Naturia Admin Berjalan dan Dapat Diakses**
+    Karena aplikasi ini bergantung pada API dari Naturia Admin, pastikan instance Naturia Admin (baik lokal maupun yang di-deploy) aktif dan URL API-nya diketahui.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2.  **Clone repositori:**
+    ```bash
+    git clone https://github.com/SeloLim/naturia.git
+    cd naturia
+    ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3.  **Install dependencies menggunakan Bun:**
+    ```bash
+    bun install
+    ```
+
+4.  **Setup Environment Variables:**
+    Buat file `.env.local` di root proyek. Anda akan membutuhkan URL API dari aplikasi Naturia Admin.
+    ```env
+    NEXT_PUBLIC_ADMIN_API_URL=
+    ACCESS_TOKEN_KEY=
+    REFRESH_TOKEN_KEY=
+    ```
+
+5.  **Jalankan server pengembangan Next.js:**
+    ```bash
+    bun dev
+    ```
+    Buka [http://localhost:3000](http://localhost:3000) (atau port lain jika 3000 sudah terpakai) di browser Anda.
+---
