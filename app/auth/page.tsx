@@ -1,7 +1,7 @@
 // File: /app/auth/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,7 +46,7 @@ const registerSchema = z
   });
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-export default function AuthPage() {
+function AuthContent() {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -417,5 +417,40 @@ export default function AuthPage() {
         </Tabs>
       </Card>
     </div>
+  );
+}
+
+// Loading component for Suspense fallback
+function AuthPageLoading() {
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4 py-8">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">
+            Welcome to Naturia
+          </CardTitle>
+          <CardDescription>
+            Loading...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<AuthPageLoading />}>
+      <AuthContent />
+    </Suspense>
   );
 }

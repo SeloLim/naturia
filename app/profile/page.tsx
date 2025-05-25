@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
@@ -21,7 +21,34 @@ import { ProfileForm } from "@/components/profile/profileForm";
 import { AddressForm } from "@/components/profile/addressForm";
 import { User } from "@/types/auth";
 
-export default function ProfilePage() {
+// Loading component for Suspense fallback
+function ProfilePageLoading() {
+  return (
+    <div className="flex flex-col min-h-screen pt-32">
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="mb-8">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-2 animate-pulse"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+        </div>
+
+        <div className="w-full">
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 mb-8 gap-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-10 bg-gray-200 rounded animate-pulse"></div>
+            ))}
+          </div>
+
+          <div className="space-y-6">
+            <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-48 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileContent() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -291,5 +318,14 @@ export default function ProfilePage() {
         onSave={handleSaveAddress}
       />
     </div>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<ProfilePageLoading />}>
+      <ProfileContent />
+    </Suspense>
   );
 }

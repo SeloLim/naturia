@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   CheckCircle,
@@ -25,7 +25,46 @@ import Image from "next/image";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { useOrderDetails } from "@/hooks/useOrderDetails";
 
-export default function ConfirmationPage() {
+// Loading component for Suspense fallback
+function ConfirmationPageLoading() {
+  return (
+    <div className="flex flex-col min-h-screen bg-gray-50 pt-40">
+      <main className="container mx-auto py-8 px-4 md:px-6 flex-grow">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4 animate-pulse">
+              <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+            </div>
+            <div className="h-8 bg-gray-200 rounded mb-2 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto animate-pulse"></div>
+          </div>
+
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="h-6 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/4 animate-pulse"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="h-2 bg-gray-200 rounded animate-pulse"></div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex flex-col items-center">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function ConfirmationContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("order");
   const { order, loading, error } = useOrderDetails(orderNumber);
@@ -264,5 +303,14 @@ export default function ConfirmationPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function ConfirmationPage() {
+  return (
+    <Suspense fallback={<ConfirmationPageLoading />}>
+      <ConfirmationContent />
+    </Suspense>
   );
 }
