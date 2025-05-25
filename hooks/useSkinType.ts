@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { fetchSkinTypes } from '../services/skintypeService';
-import { SkinType } from '../types/skinType';
+import { SkinType } from '../types/skintype';
 
 export const useSkinType = () => {
   const { data, error } = useSWR<SkinType[]>('/api/skintypes', fetchSkinTypes);

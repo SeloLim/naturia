@@ -1,5 +1,6 @@
 import { Category } from "./category";
-import { SkinType } from "./skinType";
+import { SkinType } from "./skintype";
+
 
 export interface ProductImage {
   id: number;

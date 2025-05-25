@@ -1,4 +1,4 @@
-import { SkinType } from '../types/skinType';
+import { SkinType } from '../types/skintype';
 
 const API_URL = process.env.NEXT_PUBLIC_ADMIN_API_URL + '/api/skin-types';
 
